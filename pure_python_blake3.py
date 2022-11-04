@@ -152,7 +152,6 @@ class Output:
         )[:8]
 
     def root_output_bytes(self, length: int) -> bytes:
-        print(f"block words: {self.block_words}")
         output_bytes = bytearray()
         i = 0
         while i < length:
@@ -304,13 +303,9 @@ class Hasher:
         # with the result. After all these merges, push the final value of
         # `new_cv` onto the stack. The number of completed subtrees is given
         # by the number of trailing 0-bits in the new total number of chunks.
-        print(f"cv_stack: {self.cv_stack}")
         while total_chunks & 1 == 0:
-            print(f"add chunk chain")
-            print(f"new cv: {new_cv}")
             new_cv = parent_cv(self.cv_stack.pop(), new_cv, self.key_words, self.flags)
             total_chunks >>= 1
-            print(f"total chunks (add chunk cv): {total_chunks}")
         self.cv_stack.append(new_cv)
 
     # Add input to the hash state. This can be called any number of times.
@@ -321,7 +316,6 @@ class Hasher:
             if self.chunk_state.len() == CHUNK_LEN:
                 chunk_cv = self.chunk_state.output().chaining_value()
                 total_chunks = self.chunk_state.chunk_counter + 1
-                print(f"total chunks: {total_chunks}")
                 self.add_chunk_chaining_value(chunk_cv, total_chunks)
                 self.chunk_state = ChunkState(self.key_words, total_chunks, self.flags)
 
