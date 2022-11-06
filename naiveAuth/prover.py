@@ -1,32 +1,23 @@
 from pure_python_blake3 import *
-import random
-
-class ProofNode:
-    def __init__(self, nodeData, index):
-        self.data = nodeData 
-        self.left = self._isLeft(index)
-
-    def _isLeft(self, index):
-        return (index % 2 == 0) if index else None
+from naiveAuth.proofNode import ProofNode
 
 class Prover:
     def __init__(self, data):
+        if len(data) == 0:
+            raise Exception("Prover must be instantiated with len(data) > 0")
+
         self.data_chunks = []
 
-        if (type(data) != bytes) :
+        if (type(data) != bytes):
             data = bytes(data)
-        # if (len(data) < 64):
-        #     data = data + (64 - len(data)) * b"0"
+
         while data:
             self.data_chunks.append(data[:1024])
             data = data[1024:]
 
-    def generateProof(self):
-        print(self.data_chunks)
-        challenged_chunk_idx = random.randint(0, len(self.data_chunks) - 1)
-        # print(challenged_chunk_idx)
-        # challenged_chunk_idx = 0
-        hashers = [] # Initial hashes of data chunks
+    def generateProof(self, challengedIdx):
+        challenged_chunk_idx = challengedIdx % len(self.data_chunks)
+
         proof = [] # Store the proof to be sent
         node_hashes = [] # Store the hashes at each level of the tree
         getNeighbour = True # The first 2 proof nodes will be on the same level
@@ -37,7 +28,8 @@ class Prover:
             hasher.update(self.data_chunks[0])
             rootHash = hasher.finalize().hex()
             proof.append(ProofNode(rootHash, None))
-            return proof
+            proofBytes = self._proofToBytes(proof)
+            return proofBytes
 
         for idx in range(len(self.data_chunks)):
             hasher = Hasher()
@@ -51,7 +43,7 @@ class Prover:
             appendProof = True
             # If the current challenged chunk is the last node and there is an odd number of current nodes,
             # then we don't append the node hash and simply concat child nodes
-            if challenged_chunk_idx == len(hashers) - 1:
+            if challenged_chunk_idx == len(node_hashes) - 1:
                 if len(node_hashes) % 2 != 1:
                     required_chunk_idx = challenged_chunk_idx - 1
                 else:
@@ -62,7 +54,6 @@ class Prover:
                 else:
                     required_chunk_idx = challenged_chunk_idx - 1
 
-            print("node_hashes", node_hashes)
             if appendProof:
                 proofNode = ProofNode(node_hashes[required_chunk_idx], required_chunk_idx)
                 proof.append(proofNode)
@@ -88,17 +79,20 @@ class Prover:
         # for proofNode in proof:
         #     print(proofNode.data)
 
-        return proof
+        proofBytes = self._proofToBytes(proof)
 
-        # [1,2,3,4,5,6,7]
-        # [[1_2], [3_4], [5_6], [7]]
-        # [[1234], [567]]
-        # [1234567]
+        return proofBytes
 
-        # if first then + 1
-        # if last then - 1
-        # else 
-        #     if even then + 1
-        #     if odd - 1
-
-        # []
+    def _proofToBytes(self, proof):
+        if len(proof) == 1:
+            byteArray = bytearray.fromhex(proof[0].data)
+            byteArray.append(2)
+        else:
+            byteArray = bytearray(b'')
+            for proofNode in proof:
+                for wordIdx in range(8):
+                    byteArray.extend(proofNode.data[wordIdx].to_bytes(4, byteorder='little'))
+                isLeftIdx = 1 if proofNode.left else 0
+                byteArray.append(isLeftIdx)
+    
+        return bytes(byteArray)

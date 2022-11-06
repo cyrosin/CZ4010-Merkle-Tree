@@ -102,6 +102,8 @@ tempCV = parent_cv(proverRoot.cv_stack[0], tempCV, IV, PARENT)
 #print(f"Actual Output CV: {parent_cv(proverRoot.cv_stack[0], proverRoot.chunk_state.output().chaining_value(), IV, PARENT)}")
 print(f"Actual Output CV: {tempCV}")
 
+print(bytes([tempCV[0]]))
+
 print(f"Prover Output: {parent_output(hash1_2_cv, hash3_4_cv, IV, ROOT).root_output_bytes(length=32).hex()}")
 print(f"Actual Output: {proverRoot.finalize().hex()}")
 

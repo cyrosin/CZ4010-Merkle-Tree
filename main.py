@@ -1,5 +1,5 @@
-from verifier import Verifier
-from prover import Prover
+from naiveAuth.verifier import Verifier
+from naiveAuth.prover import Prover
 
 message = b"We present BLAKE3, an evolution of the BLAKE2 cryptographic hash that is both faster\
 and also more consistently fast across different platforms and input sizes. BLAKE3\
@@ -29,8 +29,12 @@ anyG3F19q7pjIKj1eirthLCSa8e7RpPckOxdaiEphiKAJ1zmJ4KNi4SLQh67gPraTT6KOqdFTyX6MT6t
 
 shortMessage = b"abc123"
 
-v = Verifier(shortMessage)
-p = Prover(shortMessage)
+message1030B = message[:1024]+ b"123456"
 
-proof = p.generateProof()
+v = Verifier(message)
+p = Prover(message)
+
+challengeID = v.issueChallenge()
+
+proof = p.generateProof(challengeID)
 print(v.verify(proof))
