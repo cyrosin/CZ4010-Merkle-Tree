@@ -7,19 +7,23 @@ import sys
 import math
 import os
 
+import time
+
 class Verifier:
     def __init__(self, data, isPath=False):
         hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing
 
+        start = time.time()
         if isPath:
             with open(data, 'rb') as f:
+                hasher.update(f.read())
                 fileSize = os.path.getsize(data)
                 self.num_chunks = fileSize // 1024
-                if fileSize % 1024 != 0:
-                    self.num_chunks += 1
+                # if fileSize % 1024 != 0:
+                #     self.num_chunks += 1
 
-                while chunk := f.read(fileSize // 10):
-                    hasher.update(chunk)
+                # while chunk := f.read(fileSize // 10):
+                #     hasher.update(chunk)
         else:
             if (type(data) != bytes):
                 data = bytes(data)
@@ -30,6 +34,10 @@ class Verifier:
                 self.num_chunks += 1
         
         self.root_hash = hasher.digest().hex()
+        end = time.time()
+
+        print('done')
+        print(f'{end - start} s')
         
         self.tree_height = math.ceil(math.log2(self.num_chunks))   
 

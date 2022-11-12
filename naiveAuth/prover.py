@@ -2,18 +2,22 @@ from pure_python_blake3 import *
 from naiveAuth.proofNode import ProofNode
 
 class Prover:
-    def __init__(self, data):
+    def __init__(self, data, isPath=False):
         if len(data) == 0:
             raise Exception("Prover must be instantiated with len(data) > 0")
 
         self.data_chunks = []
 
-        if (type(data) != bytes):
-            data = bytes(data)
-
-        while data:
-            self.data_chunks.append(data[:1024])
-            data = data[1024:]
+        if isPath:
+            with open(data, 'rb') as f:
+                while chunk := f.read(1024):
+                    self.data_chunks.append(chunk)
+        else:
+            if type(data) != bytes:
+                data = bytes(data)
+            while data:
+                self.data_chunks.append(data[:1024])
+                data = data[1024:]
     
     def respondToChallenge(self, challengedIdx):
         proofBytes = self.generateProof(challengedIdx)
@@ -79,9 +83,6 @@ class Prover:
                 challenged_chunk_idx = required_chunk_idx // 2
             else:
                 challenged_chunk_idx = challenged_chunk_idx // 2
-
-        # for proofNode in proof:
-        #     print(proofNode.data)
 
         proofBytes = self._proofToBytes(proof)
 

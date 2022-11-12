@@ -1,0 +1,9 @@
+b3a.py
+setup.py
+b3a.egg-info/PKG-INFO
+b3a.egg-info/SOURCES.txt
+b3a.egg-info/dependency_links.txt
+b3a.egg-info/entry_points.txt
+b3a.egg-info/top_level.txt
+test/test_naiveAuth.py
+test/test_proposedAuth.py

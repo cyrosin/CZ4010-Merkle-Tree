@@ -1,0 +1,3 @@
+[console_scripts]
+b3a = b3a:cli
+
