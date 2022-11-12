@@ -1,5 +1,4 @@
 from pure_python_blake3 import *
-from blake3 import blake3
 from proposedAuth.proofNode import ProofNode
 import math
 import secrets
@@ -14,6 +13,7 @@ class Prover:
 
         if isPath:
             with open(data, 'rb') as f:
+                #fileSize = os.path.getsize(data)
                 while chunk := f.read(1024):
                     self.data_chunks.append(chunk)
         else:
@@ -23,12 +23,15 @@ class Prover:
                 self.data_chunks.append(data[:1024])
                 data = data[1024:]
 
+        print("finished initializing prover")  
+
     def respondToChallenge(self, challengedIdx, proofLength):
         proofBytes = self.generateProof(challengedIdx, proofLength)
         obfuscatedProofBytes = self.obfuscateProof(proofBytes, proofLength)
         return obfuscatedProofBytes
 
     def generateProof(self, challengedIdx, proofLength):
+        print('generating proof')
         challenged_chunk_idx = challengedIdx % len(self.data_chunks)
         proof = [] # Store the proof to be sent
         node_hashes = [] # Store the hashes at each level of the tree
@@ -45,6 +48,7 @@ class Prover:
             return proofBytes
 
         for idx in range(len(self.data_chunks)):
+            print(idx)
             hasher = Hasher()
             hasher.chunk_state = ChunkState(IV, idx, 0)
             hasher.update(self.data_chunks[idx])

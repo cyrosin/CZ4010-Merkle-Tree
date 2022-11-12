@@ -14,6 +14,10 @@ class Prover:
         while data:
             self.data_chunks.append(data[:1024])
             data = data[1024:]
+    
+    def respondToChallenge(self, challengedIdx):
+        proofBytes = self.generateProof(challengedIdx)
+        return proofBytes
 
     def generateProof(self, challengedIdx):
         challenged_chunk_idx = challengedIdx % len(self.data_chunks)

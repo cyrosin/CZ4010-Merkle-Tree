@@ -1,10 +1,11 @@
 import unittest
 import secrets
+import os
 
 from proposedAuth.verifier import Verifier
 from proposedAuth.prover import Prover
 
-class TestNaiveAuth(unittest.TestCase):
+class TestProposedAuth(unittest.TestCase):
     def test_4chunk_message(self):
         message = secrets.token_bytes(4096)
 
@@ -71,3 +72,18 @@ class TestNaiveAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
+
+    def test_file_auth(self):
+        dirname = os.path.dirname(__file__)
+        filename = os.path.join(dirname, 'dummy.exe')
+ 
+        v = Verifier(filename, isPath=True)
+        p = Prover(filename, isPath=True)
+    
+        challengeIdx, requiredProofLength = v.issueChallenge()
+        proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
+        result = v.verify(proofBytes)
+        self.assertEqual(result, True)
+
+
+    # Implement testing for corrupted messages

@@ -9,7 +9,9 @@ import os
 
 class Verifier:
     def __init__(self, data, isPath=False):
-        hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing
+        hasher = blake3()
+
+        print(hasher.__dict__)
 
         if isPath:
             with open(data, 'rb') as f:
@@ -17,9 +19,11 @@ class Verifier:
                 self.num_chunks = fileSize // 1024
                 if fileSize % 1024 != 0:
                     self.num_chunks += 1
-
+                i = 0
                 while chunk := f.read(fileSize // 10):
+                    print(i)
                     hasher.update(chunk)
+                    i += 1
         else:
             if (type(data) != bytes):
                 data = bytes(data)
@@ -31,7 +35,8 @@ class Verifier:
         
         self.root_hash = hasher.digest().hex()
         
-        self.tree_height = math.ceil(math.log2(self.num_chunks))   
+        self.tree_height = math.ceil(math.log2(self.num_chunks))
+        print("finished initializing verifier")    
 
     def issueChallenge(self):
         challengeIdx = secrets.randbelow(sys.maxsize)

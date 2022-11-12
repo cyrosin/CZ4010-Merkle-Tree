@@ -64,3 +64,5 @@ class TestNaiveAuth(unittest.TestCase):
         challengeIdx = v.issueChallenge()
         result = v.verify(p.generateProof(challengeIdx))
         self.assertEqual(result, True)
+
+    # Implement testing for corrupted messages
