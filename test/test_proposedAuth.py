@@ -75,7 +75,7 @@ class TestProposedAuth(unittest.TestCase):
 
     def test_file_auth(self):
         dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, 'dummy.exe')
+        filename = os.path.join(dirname, '../data/dummy.exe')
  
         v = Verifier(filename, isPath=True)
         p = Prover(filename, isPath=True)
