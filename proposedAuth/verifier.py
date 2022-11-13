@@ -10,6 +10,9 @@ import os
 class Verifier:
     def __init__(self, data, isPath=False):
         hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing
+        
+        if isinstance(data, list):
+            data = self._hashfiles(data)
 
         if isPath:
             with open(data, 'rb') as f:
@@ -89,6 +92,23 @@ class Verifier:
 
         return proof
 
+    
+    def _hashfiles(self, filepath_list):
+
+        byteArray = bytearray(b'')
+
+        for filepath in filepath_list:
+
+            with open(filepath, 'rb') as f:
+
+                f = bytearray(f.encode())
+                hashed_file = blake3(f).digest(length = 1024)
+                byteArray.extend(hashed_file)
+        
+        return byteArray    
+    
+    
+    
     def _restoreProof(self, proofBytes):
         HASHLENGTH_BITS = 264
 
