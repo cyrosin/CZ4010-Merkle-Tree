@@ -6,18 +6,16 @@ from naiveAuth.verifier import Verifier
 from naiveAuth.prover import Prover
 
 @click.group
+@click.version_option()
+@click.help_option()
 def cli():
     pass
-
-@cli.command()
-def test():
-    click.echo("Hello World!")
 
 # Set Up the Verifier 
 @cli.command()
 @click.option('-h', '--host', required=True, type=click.STRING, default="127.0.0.1")
 @click.option('-p', '--port', type=click.INT, default=9000)
-@click.argument('input', type=click.Path(allow_dash=True), nargs=1)
+@click.argument('input', type=click.Path(allow_dash=True), nargs=-1)
 def listen(input, host, port):
     v = Verifier(input, isPath=True)
 
@@ -58,7 +56,7 @@ def listen(input, host, port):
 @cli.command()
 @click.option('-h', '--host', required=True, type=click.STRING, default="127.0.0.1")
 @click.option('-p', '--port', type=click.INT, default=9000)
-@click.argument('input', type=click.Path(allow_dash=True), nargs=1)
+@click.argument('input', type=click.Path(allow_dash=True), nargs=-1)
 def connect(input, host, port):
     p = Prover(input, isPath=True)
 
@@ -71,7 +69,6 @@ def connect(input, host, port):
 
         challengeIdx = int.from_bytes(challengeIdxBytes, byteorder='big')
         proof = p.respondToChallenge(challengeIdx)
-        print(len(proof))
         
         click.echo(f"Sending Proof to {(host, port)}")
         s.send(proof)
