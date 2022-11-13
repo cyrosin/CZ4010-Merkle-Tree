@@ -49,6 +49,29 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
+        
+        
+        
+    def test_file_auth(self):
+        dirname = os.path.dirname(__file__)
+        filename = os.path.join(dirname, '/test/file1')
+    
+
+ 
+        v = Verifier(filename, isPath=True)
+        p = Prover(filename, isPath=True)
+    
+        challengeIdx, requiredProofLength = v.issueChallenge()
+        proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
+
+        print(proofBytes)
+
+        result = v.verify(proofBytes)
+        self.assertEqual(result, True)    
+    
+    
+    
+    
 
     @unittest.expectedFailure
     def test_empty_message(self):
