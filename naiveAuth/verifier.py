@@ -1,17 +1,34 @@
 
 from pure_python_blake3 import *
 from naiveAuth.proofNode import ProofNode
+from blake3 import blake3
+import os
 import secrets
 import sys
 
 class Verifier:
-    def __init__(self, data):
-        if (type(data) != bytes):
-            data = bytes(data)
+    def __init__(self, data, isPath=False):
+        hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing
 
-        hasher = Hasher()
-        hasher.update(data)
-        self.root_hash = hasher.finalize().hex()
+        if isPath:
+            with open(data, 'rb') as f:
+                fileSize = os.path.getsize(data)
+                self.num_chunks = fileSize // 1024
+                if fileSize % 1024 != 0:
+                    self.num_chunks += 1
+
+                while chunk := f.read(fileSize // 10):
+                    hasher.update(chunk)
+        else:
+            if (type(data) != bytes):
+                data = bytes(data)
+            hasher.update(data)
+            
+            self.num_chunks = len(data) // 1024
+            if len(data) % 1024 != 0:
+                self.num_chunks += 1
+
+        self.root_hash = hasher.digest().hex()
 
     def issueChallenge(self):
         return secrets.randbelow(sys.maxsize)
