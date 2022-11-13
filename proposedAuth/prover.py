@@ -9,17 +9,20 @@ class Prover:
     def __init__(self, data, isPath=False):
         if len(data) == 0:
             raise Exception("Prover must be instantiated with len(data) > 0")
-        
-        if isinstance(data, list):
-            data = self._hashfiles(data)
-
 
         self.data_chunks = []
 
         if isPath:
-            with open(data, 'rb') as f:
-                while chunk := f.read(1024):
-                    self.data_chunks.append(chunk)
+            # If provided with a list of filepaths, preprocess them by hashing them
+            if isinstance(data, (list, tuple)):
+                data = self._hashfiles(data)
+                while data:
+                    self.data_chunks.append(data[:1024])
+                    data = data[1024:]
+            else:
+                with open(data, 'rb') as f:
+                    while chunk := f.read(1024):
+                        self.data_chunks.append(chunk)
         else:
             if type(data) != bytes:
                 data = bytes(data)
@@ -114,28 +117,24 @@ class Prover:
         proofBytes = self._proofToBytes(proof)
 
         return proofBytes
-    
-    
-    
-    def _hashfiles(self, filepath_list):
 
+    def _hashfiles(self, filepath_list):
+        """
+        Given a list of filepaths, hash them using blake3 to obtain 1024 byte hash representations 
+        of their data, then construct the merkle tree for authentication using these representations
+        """
         byteArray = bytearray(b'')
 
         for filepath in filepath_list:
 
             with open(filepath, 'rb') as f:
 
-                f = bytearray(f.encode())
-                hashed_file = blake3(f).digest(length = 1024)
+                fileBytes = f.read()
+                hashed_file = blake3(fileBytes).digest(length = 1024)
                 byteArray.extend(hashed_file)
         
         return byteArray
 
-    
-    
-    
-    
-    
     def _proofToBytes(self, proof):
         if len(proof) == 1:
             byteArray = bytearray.fromhex(proof[0].data)

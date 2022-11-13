@@ -12,21 +12,22 @@ import time
 class Verifier:
     def __init__(self, data, isPath=False):
         hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing
-        
-        if isinstance(data, list):
-            data = self._hashfiles(data)
 
-        start = time.time()
         if isPath:
-            with open(data, 'rb') as f:
-                hasher.update(f.read())
-                fileSize = os.path.getsize(data)
-                self.num_chunks = fileSize // 1024
-                # if fileSize % 1024 != 0:
-                #     self.num_chunks += 1
-
-                # while chunk := f.read(fileSize // 10):
-                #     hasher.update(chunk)
+            # If provided with a list of filepaths, preprocess them by hashing them
+            if isinstance(data, (list, tuple)):
+                data = self._hashfiles(data)
+                hasher.update(data)
+                self.num_chunks = len(data) // 1024
+                if len(data) % 1024 != 0:
+                    self.num_chunks += 1
+            else:
+                with open(data, 'rb') as f:
+                    hasher.update(f.read())
+                    fileSize = os.path.getsize(data)
+                    self.num_chunks = fileSize // 1024
+                    if fileSize % 1024 != 0:
+                        self.num_chunks += 1
         else:
             if (type(data) != bytes):
                 data = bytes(data)
@@ -37,10 +38,6 @@ class Verifier:
                 self.num_chunks += 1
         
         self.root_hash = hasher.digest().hex()
-        end = time.time()
-
-        print('done')
-        print(f'{end - start} s')
         
         self.tree_height = math.ceil(math.log2(self.num_chunks))   
 
@@ -102,20 +99,21 @@ class Verifier:
 
     
     def _hashfiles(self, filepath_list):
-
+        """
+        Given a list of filepaths, hash them using blake3 to obtain 1024 byte hash representations 
+        of their data, then construct the merkle tree for authentication using these representations
+        """
         byteArray = bytearray(b'')
 
         for filepath in filepath_list:
 
             with open(filepath, 'rb') as f:
 
-                f = bytearray(f.encode())
-                hashed_file = blake3(f).digest(length = 1024)
+                fileBytes = f.read()
+                hashed_file = blake3(fileBytes).digest(length = 1024)
                 byteArray.extend(hashed_file)
         
         return byteArray    
-    
-    
     
     def _restoreProof(self, proofBytes):
         HASHLENGTH_BITS = 264

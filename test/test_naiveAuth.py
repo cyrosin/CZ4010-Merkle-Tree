@@ -1,5 +1,6 @@
 import unittest
 import secrets
+import os
 
 from naiveAuth.verifier import Verifier
 from naiveAuth.prover import Prover
@@ -63,6 +64,21 @@ class TestNaiveAuth(unittest.TestCase):
         p = Prover(message)
         challengeIdx = v.issueChallenge()
         result = v.verify(p.generateProof(challengeIdx))
+        self.assertEqual(result, True)
+
+    def test_multiple_file_auth(self):
+        dirname = os.path.dirname(__file__)
+        file1name = os.path.join(dirname, '../data/dummy.exe')
+        file2name = os.path.join(dirname, '../data/dummy2.exe')
+
+        filepaths = [file1name, file2name]
+ 
+        v = Verifier(filepaths, isPath=True)
+        p = Prover(filepaths, isPath=True)
+    
+        challengeIdx = v.issueChallenge()
+        proofBytes = p.respondToChallenge(challengeIdx)
+        result = v.verify(proofBytes)
         self.assertEqual(result, True)
 
     # Implement testing for corrupted messages

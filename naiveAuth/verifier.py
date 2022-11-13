@@ -11,22 +11,18 @@ class Verifier:
         hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing
 
         if isPath:
-            with open(data, 'rb') as f:
-                fileSize = os.path.getsize(data)
-                self.num_chunks = fileSize // 1024
-                if fileSize % 1024 != 0:
-                    self.num_chunks += 1
+            # If provided with a list of filepaths, preprocess them by hashing them
+            if isinstance(data, (list, tuple)):
+                data = self._hashfiles(data)
+                hasher.update(data)
+            else:
+                with open(data, 'rb') as f:
+                    hasher.update(f.read())
 
-                while chunk := f.read(fileSize // 10):
-                    hasher.update(chunk)
         else:
             if (type(data) != bytes):
                 data = bytes(data)
             hasher.update(data)
-            
-            self.num_chunks = len(data) // 1024
-            if len(data) % 1024 != 0:
-                self.num_chunks += 1
 
         self.root_hash = hasher.digest().hex()
 
@@ -52,9 +48,21 @@ class Verifier:
 
         return self.root_hash == proof_root_hash.root_output_bytes(length=32).hex()
 
-    def _right_most_bits(self, value, n):
-        # Get the n_right_most bits from value
-        return value & ((1 << n) - 1)
+    def _hashfiles(self, filepath_list):
+        """
+        Given a list of filepaths, hash them using blake3 to obtain 1024 byte hash representations 
+        of their data, then construct the merkle tree for authentication using these representations
+        """
+        byteArray = bytearray(b'')
+
+        for filepath in filepath_list:
+
+            with open(filepath, 'rb') as f:
+                fileBytes = f.read()
+                hashed_file = blake3(fileBytes).digest(length = 1024)
+                byteArray.extend(hashed_file)
+        
+        return byteArray
 
     def bytesToProofNodes(self, proofBytes):
         proof = []

@@ -7,7 +7,6 @@ from proposedAuth.prover import Prover
 
 
 class TestProposedAuth(unittest.TestCase):
-    @unittest.skip
     def test_4chunk_message(self):
         message = secrets.token_bytes(4096)
 
@@ -18,7 +17,7 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
-    @unittest.skip
+
     def test_5chunk_message(self):
         message = secrets.token_bytes(5120)
 
@@ -29,7 +28,7 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
-    @unittest.skip
+
     def test_6chunk_message(self):
         message = secrets.token_bytes(6144)
 
@@ -40,7 +39,7 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
-    @unittest.skip
+
     def test_7chunk_message(self):
         message = secrets.token_bytes(7168)
 
@@ -51,29 +50,19 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
-        
-        
-        
-    def test_file_auth(self):
-        dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, '/test/file1')
+         
+    # def test_file_auth(self):
+    #     dirname = os.path.dirname(__file__)
+    #     filename = os.path.join(dirname, '/test/file1')
     
+    #     v = Verifier(filename, isPath=True)
+    #     p = Prover(filename, isPath=True)
+    
+    #     challengeIdx, requiredProofLength = v.issueChallenge()
+    #     proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
 
- 
-        v = Verifier(filename, isPath=True)
-        p = Prover(filename, isPath=True)
-    
-        challengeIdx, requiredProofLength = v.issueChallenge()
-        proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
-
-        print(proofBytes)
-
-        result = v.verify(proofBytes)
-        self.assertEqual(result, True)    
-    
-    
-    
-    
+    #     result = v.verify(proofBytes)
+    #     self.assertEqual(result, True)    
 
     @unittest.expectedFailure
     def test_empty_message(self):
@@ -86,7 +75,7 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
-    @unittest.skip
+
     def test_short_message(self):
         message = secrets.token_bytes(1)
 
@@ -109,6 +98,20 @@ class TestProposedAuth(unittest.TestCase):
         proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
         result = v.verify(proofBytes)
         self.assertEqual(result, True)
+    
+    def test_multiple_file_auth(self):
+        dirname = os.path.dirname(__file__)
+        file1name = os.path.join(dirname, '../data/dummy.exe')
+        file2name = os.path.join(dirname, '../data/dummy2.exe')
 
+        filepaths = [file1name, file2name]
+ 
+        v = Verifier(filepaths, isPath=True)
+        p = Prover(filepaths, isPath=True)
+    
+        challengeIdx, requiredProofLength = v.issueChallenge()
+        proofBytes = p.respondToChallenge(challengeIdx, requiredProofLength)
+        result = v.verify(proofBytes)
+        self.assertEqual(result, True)
 
     # Implement testing for corrupted messages
