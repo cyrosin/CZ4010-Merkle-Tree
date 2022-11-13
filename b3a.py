@@ -71,6 +71,7 @@ def connect(input, host, port):
 
         challengeIdx = int.from_bytes(challengeIdxBytes, byteorder='big')
         proof = p.respondToChallenge(challengeIdx)
+        print(len(proof))
         
         click.echo(f"Sending Proof to {(host, port)}")
         s.send(proof)

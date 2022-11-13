@@ -1,4 +1,0 @@
-[build-system]
-# Keep the Maturin version in sync with tag.yml.
-requires = ["maturin>=0.13,<0.14"]
-build-backend = "maturin"
