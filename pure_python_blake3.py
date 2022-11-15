@@ -1,3 +1,5 @@
+# Source: https://github.com/oconnor663/pure_python_blake3
+
 #! /usr/bin/env python3
 
 # This is a Python port of the Rust reference implementation of BLAKE3:

@@ -3,7 +3,6 @@ from blake3 import blake3
 from proposedAuth.proofNode import ProofNode
 import math
 import secrets
-import os
 
 class Prover:
     def __init__(self, data, isPath=False):

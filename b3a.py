@@ -1,6 +1,5 @@
 import click
 import socket
-import sys
 
 import naiveAuth.verifier
 import naiveAuth.prover

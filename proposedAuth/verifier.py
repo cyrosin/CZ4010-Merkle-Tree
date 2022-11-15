@@ -7,8 +7,6 @@ import sys
 import math
 import os
 
-import time
-
 class Verifier:
     def __init__(self, data, isPath=False):
         hasher = blake3() # Using the blake3 (PyO3) package speeds up the hashing

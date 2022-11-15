@@ -2,7 +2,6 @@
 from pure_python_blake3 import *
 from naiveAuth.proofNode import ProofNode
 from blake3 import blake3
-import os
 import secrets
 import sys
 
