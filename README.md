@@ -18,7 +18,6 @@ By default, the CLI listens on `127.0.0.1` *(localhost)* on port `9000` in the s
 As a Verifier, to start listening for Provers for files FILE_1 and FILE_2:
 
 > `b3a listen FILE_1 FILE_2`
-
 As a Prover, to provide proof for files FILE_1 and FILE_2:
 
 > `b3a connect FILE_1 FILE_2`
